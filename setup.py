@@ -5,10 +5,10 @@ from setuptools import (
 
 
 setup(
-    name='restic-check',
+    name='restic-utils',
     version='0.0.1',
-    description="Check on your restic backups",
-    url='https://github.com/kennydo/restic-check',
+    description="Various CLI utilities for Restic backups",
+    url='https://github.com/kennydo/restic-utils',
     author='Kenny Do',
     author_email='chinesedewey@gmail.com',
     classifiers=[
