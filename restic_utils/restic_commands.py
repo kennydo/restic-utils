@@ -48,7 +48,7 @@ def list_snapshots(
     parsed_output = json.loads(stdout)
     log.debug("Parsed %s snapshots entries", len(parsed_output) if parsed_output else "none")
 
-    snapshots = []
+    snapshots: List[restic_models.Snapshot] = []
 
     if not parsed_output:
         log.info("Did not parse any entries from snapshots list")

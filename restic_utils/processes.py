@@ -1,8 +1,9 @@
 import subprocess
 from typing import List
+from typing import Tuple
 
 
-def run_command(args: List[str]) -> (str, str):
+def run_command(args: List[str]) -> Tuple[str, str]:
     proc = subprocess.Popen(
         args,
         stdout=subprocess.PIPE,
