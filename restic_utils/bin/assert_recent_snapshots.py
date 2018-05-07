@@ -6,7 +6,6 @@ from typing import Dict
 from typing import List
 from typing import NamedTuple
 from typing import Optional
-from typing import Tuple
 
 import click
 
@@ -22,7 +21,7 @@ class HostPath(NamedTuple):
     path: str
 
 
-def parse_host_path_argument(ctx, param, value: Tuple[str]) -> List[HostPath]:
+def parse_host_path_argument(ctx: click.Context, param: click.Parameter, value) -> List[HostPath]:
     if not value:
         raise click.BadParameter("At least one host:/path argument is required")
 
@@ -48,7 +47,7 @@ class SnapshotDB:
 
     def fetch_latest_snapshots(self, host_paths: List[HostPath]) -> None:
         unique_hosts = set([host_path.host for host_path in host_paths])
-        host_paths = set(host_paths)
+        host_paths_set = set(host_paths)
 
         for host in unique_hosts:
             snapshots = restic_commands.list_snapshots(only_latest=True, filter_host=host)
@@ -59,7 +58,7 @@ class SnapshotDB:
                 for path in snapshot.paths:
                     key = HostPath(host=host, path=path)
 
-                    if key not in host_paths:
+                    if key not in host_paths_set:
                         log.debug("Ignoring snapshot info for %s because it is not a relevant host path", key)
                         continue
 
@@ -109,6 +108,7 @@ class SnapshotBucketer:
                 continue
 
             latest_snapshot = self.snapshot_db.get_latest_snapshot_for_host_path(key)
+            assert latest_snapshot
 
             if latest_snapshot.time > min_time_bound:
                 host_paths_with_recent_snapshots.append(key)
@@ -128,6 +128,7 @@ def _describe_host_path_snapshot(
     host_path: HostPath,
 ) -> str:
     snapshot = snapshot_db.get_latest_snapshot_for_host_path(host_path)
+    assert snapshot
     hours = (naive_utc_now - snapshot.time).total_seconds() / (60 * 60)
 
     return f"{host_path.host}:{host_path.path} snapshot {snapshot.short_id} is {hours:.5} hours old"
@@ -144,7 +145,7 @@ def _describe_host_path_snapshot(
     nargs=-1,
     callback=parse_host_path_argument,
 )
-def main(max_age_hours: int, host_paths: List[str]):
+def main(max_age_hours: int, host_paths: List[HostPath]):
     """
     Assert that there exists recent snapshots for the given host/path combinations.
     Returns non-zero exit code if any of the specified host paths do not have a snapshot
