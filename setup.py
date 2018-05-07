@@ -1,8 +1,5 @@
-from setuptools import (
-    find_packages,
-    setup,
-)
-
+from setuptools import find_packages
+from setuptools import setup
 
 setup(
     name='restic-utils',
@@ -21,6 +18,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'assert-recent-snapshots=restic_utils.bin.assert_recent_snapshots:main',
         ],
     },
 )
